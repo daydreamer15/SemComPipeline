@@ -114,19 +114,16 @@ export default {
       this.loading = true;
       this.error = null;
 
-      // Set the base URL for API calls
-      const API_BASE_URL = "/api"; // This can be changed to a full URL if needed
-
       // First set the SNR value
-      const snrValues = [10, 20, 30]; // Low, Medium, High - adjusted for better results
+      const snrValues = [10, 20, 30]; // Low, Medium, High
       axios
-        .post(`${API_BASE_URL}/set_snr`, { snr: snrValues[this.snr] })
+        .post("/set_snr", { snr: snrValues[this.snr] })
         .then(() => {
           // Now upload the image
           const formData = new FormData();
           formData.append("file", this.selectedFile);
 
-          return axios.post(`${API_BASE_URL}/upload`, formData, {
+          return axios.post("/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -146,9 +143,9 @@ export default {
         .catch((err) => {
           console.error("Error processing image:", err);
           this.error =
-            err.response?.data?.error ||
-            err.message ||
-            "Error processing image. Please try again.";
+            err.response && err.response.data && err.response.data.error
+              ? err.response.data.error
+              : "Error processing image. Please try again.";
         })
         .finally(() => {
           this.loading = false;
