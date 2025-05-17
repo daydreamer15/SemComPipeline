@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Semantic Communication Pipeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- Vue Frontend (App.vue or main component) -->
+    <div id="app" class="p-6 max-w-5xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">
+        Semantic Communication Image Pipeline
+      </h1>
+      <input type="file" id="imageInput" accept="image/*" />
+
+      <div
+        id="imagesContainer"
+        class="mt-4 flex flex-row gap-6 overflow-x-auto"
+        style="display: none"
+      >
+        <div>
+          <h2 class="font-semibold">1. Original</h2>
+          <img id="originalImage" class="border rounded" />
+        </div>
+        <div id="stageImages"></div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const imageInput = document.getElementById("imageInput");
+        const originalImage = document.getElementById("originalImage");
+        const stageImages = document.getElementById("stageImages");
+        const imagesContainer = document.getElementById("imagesContainer");
+
+        imageInput.addEventListener("change", async (event) => {
+          const file = event.target.files[0];
+          const formData = new FormData();
+          formData.append("file", file); // ← use "file"
+          const response = await fetch("http://localhost:5000/upload", {
+            // ← /upload
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          // Clear previous stage images
+          stageImages.innerHTML = "";
+
+          for (let stage in result) {
+            const stageDiv = document.createElement("div");
+            const title = document.createElement("h2");
+            title.className = "font-semibold";
+            title.textContent = stage;
+            const img = document.createElement("img");
+            img.src = result[stage];
+            img.className = "border rounded";
+            stageDiv.appendChild(title);
+            stageDiv.appendChild(img);
+            stageImages.appendChild(stageDiv);
+          }
+        });
+      });
+    </script>
+
+    <style>
+      img {
+        max-width: 100%;
+      }
+    </style>
+  </body>
+</html>
