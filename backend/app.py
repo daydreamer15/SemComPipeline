@@ -394,7 +394,7 @@ def process_image(image_path):
     
     return result
 
-@app.route('/upload', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -414,15 +414,18 @@ def upload_file():
             result = process_image(filepath)
             return jsonify(result)
         except Exception as e:
+            import traceback
+            print(traceback.format_exc())  # Print full error for debugging
             return jsonify({'error': str(e)}), 500
 
-@app.route('/set_snr', methods=['POST'])
+@app.route('/api/set_snr', methods=['POST'])
 def set_snr():
     data = request.json
     snr = data.get('snr', 20)
     channel.set_snr(snr)
     return jsonify({'status': 'success', 'snr': snr})
 
+# Serve static files
 @app.route('/')
 def index():
     return send_from_directory('dist', 'index.html')
